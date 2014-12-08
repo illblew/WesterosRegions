@@ -8,7 +8,9 @@ import org.bukkit.plugin.PluginManager;
 import java.util.logging.Level;
 
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
@@ -34,6 +36,16 @@ public class Main extends JavaPlugin implements Listener  {
 	@EventHandler
 	public void onRegionEnter(RegionEnterEvent e)
 	{
-	  e.getPlayer().sendMessage("You just entered " + e.getRegion().getId());
+		Player p = e.getPlayer();
+		Double price = e.getRegion().getFlag(DefaultFlag.PRICE);
+		
+		if (p.getTotalExperience() < price.floatValue()) 
+		{
+		e.getPlayer().sendMessage("You just entered " + e.getRegion().getId() + " it takes " + price + "XP and you only have " + p.getExp());
+		}
+		else {
+			p.setExp(p.getTotalExperience() - price.floatValue());
+			e.getPlayer().sendMessage("You just entered " + e.getRegion().getId() + " it cost you " + price);
+		}
 	}
 }
