@@ -1,0 +1,6 @@
+name: WesterosRegions
+version: 0.1
+description: This is the region controller for WesterosCraft
+author: illblew
+website: http://www.westeroscraft.com/
+main: com.westeroscraft.regions.Main
