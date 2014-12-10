@@ -7,8 +7,6 @@ import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 
-import com.westeroscraft.regions.MysqlConnect;
-
 import java.sql.Connection;
 import java.util.logging.Level;
 
