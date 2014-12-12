@@ -71,7 +71,7 @@ public class Main extends JavaPlugin implements Listener  {
 			
 			// Location logic goes here
 			
-				// Aka check t ype of area
+				// Aka check type of area
 			
 			// Spawn instance
 			
@@ -98,24 +98,27 @@ public class Main extends JavaPlugin implements Listener  {
 		if (cmd.getName().equalsIgnoreCase("wrc")) {
 			Connection con;
 			try {
-				con = (Connection) cSQL.conJoner();
+				con = cSQL.conJoner();
 				log("Getting count of Westeros regions");
 				try {
 					statement = con.createStatement();
 					resultSet = statement
-							.executeQuery("SELECT COUNT(regions) FROM WesterosRegions");
-					this.getServer().broadcastMessage("There are currently " + resultSet + " regions.");
+							.executeQuery("SELECT COUNT(id) AS rowcount FROM Regions");
+					resultSet.next();
+					int count = resultSet.getInt("rowcount");
+					resultSet.close();
+					this.getServer().broadcastMessage("There are currently " + count + " regions.");
 					con.close();
 					return true;
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
-					log("Error reading from MySQL database");
-					return true;
+					log(e.toString());
+					return false;
 				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
-				log("Error connecting to the MySQL database");
-				return true;
+				log(e1.toString());
+				return false;
 			}
 		}
 		return false;
