@@ -8,18 +8,26 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 
 import com.avaje.ebean.Query;
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 
 public class Main extends JavaPlugin implements Listener  {
+	public Statement statement;
+	public ResultSet resultSet;
+	ConfigManager cSQL = new ConfigManager();
 	
 	//on disable
 	public void onDisable() {
@@ -27,22 +35,17 @@ public class Main extends JavaPlugin implements Listener  {
 		
 	}
 	
-	public void onEnable() {
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(this, this);
-        log("WesterosRegions Enabled!");
-        
-        //make connection
-        ConfigManager cSQL = new ConfigManager();
-        //dial up
-        Connection con = (Connection) cSQL.conJoner();
-	}
-	
     //logger
     public void log(String text) {
     	this.getLogger().log(Level.INFO, text);
     }
-    
+	
+	public void onEnable() {
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(this, this);
+        log("WesterosRegions Enabled!");
+	}
+	
 	@EventHandler
 	public void onRegionEnter(RegionEnterEvent e)
 	{
@@ -88,5 +91,34 @@ public class Main extends JavaPlugin implements Listener  {
 			
 				// Call regen based on Prisim data? WHAT WHAT!
 		}
+	}
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String label,
+			String[] args) {
+		if (cmd.getName().equalsIgnoreCase("wrc")) {
+			Connection con;
+			try {
+				con = (Connection) cSQL.conJoner();
+				log("Getting count of Westeros regions");
+				try {
+					statement = con.createStatement();
+					resultSet = statement
+							.executeQuery("SELECT COUNT(regions) FROM WesterosRegions");
+					this.getServer().broadcastMessage("There are currently " + resultSet + " regions.");
+					con.close();
+					return true;
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					log("Error reading from MySQL database");
+					return true;
+				}
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				log("Error connecting to the MySQL database");
+				return true;
+			}
+		}
+		return false;
+		
 	}
 }

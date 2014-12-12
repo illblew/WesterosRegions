@@ -4,3 +4,9 @@ description: This is the region controller for WesterosCraft
 author: illblew
 website: http://www.westeroscraft.com/
 main: com.westeroscraft.regions.Main
+commands:
+   wrc:
+      description: Gets current region count
+      usage: /wrc
+      permission: wr.count
+      permission-message: nope
