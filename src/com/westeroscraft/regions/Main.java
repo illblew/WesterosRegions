@@ -2,6 +2,7 @@ package com.westeroscraft.regions;
 //This plugin was written by Will Blew for WesterosCraft in 2014
 //This plugin is based on the concepts of ALL team members.
 
+import org.apache.commons.pool2.ObjectPool;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,8 +28,9 @@ import org.bukkit.event.Listener;
 public class Main extends JavaPlugin implements Listener  {
 	public Statement statement;
 	public ResultSet resultSet;
+	public final ObjectPool conPool;
 	ConfigManager cSQL = new ConfigManager();
-	
+	Connection con;
 	//on disable
 	public void onDisable() {
 		log("WesterosRegions Closing...");
@@ -40,10 +42,18 @@ public class Main extends JavaPlugin implements Listener  {
     	this.getLogger().log(Level.INFO, text);
     }
 	
+    
+    //connection pooler
+    public Main(ObjectPool conPool) {
+		//make pool
+        this.conPool = conPool;
+    }
+    //enable
 	public void onEnable() {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(this, this);
         log("WesterosRegions Enabled!");
+        
 	}
 	
 	@EventHandler
@@ -96,7 +106,6 @@ public class Main extends JavaPlugin implements Listener  {
 	public boolean onCommand(CommandSender sender, Command cmd, String label,
 			String[] args) {
 		if (cmd.getName().equalsIgnoreCase("wrc")) {
-			Connection con;
 			try {
 				con = cSQL.conJoner();
 				log("Getting count of Westeros regions");
