@@ -6,5 +6,7 @@
 	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/worldguard.jar"/>
 	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/worldedit-5.5.8-Westeroscraft-0.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/bukkit-1.6.4-R2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pepsi/Desktop/commons-net-3.3/commons-net-3.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pepsi/Desktop/commons-pool2-2.2/commons-pool2-2.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
