@@ -140,32 +140,25 @@ public class Main extends JavaPlugin implements Listener  {
 	public boolean onCommand(CommandSender sender, Command cmd, String label,
 			String[] args) {
 		if (cmd.getName().equalsIgnoreCase("wrc")) {
-			Connection con;
-			try {
-				con = cSQL.conJoner();
 				log("Getting count of Westeros regions");
-				try {
-					statement = con.createStatement();
-					resultSet = statement
-							.executeQuery("SELECT COUNT(id) AS rowcount FROM Regions");
-					resultSet.next();
-					int count = resultSet.getInt("rowcount");
-					resultSet.close();
-					this.getServer().broadcastMessage("There are currently " + count + " regions.");
-					con.close();
-					return true;
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					log(e.toString());
-					return false;
-				}
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				log(e1.toString());
-				return false;
+					ResultSet results;
+					try {
+						log("Trying to read results of region count.");
+						results = cSQL.read("SELECT COUNT(id) AS rowcount FROM Regions");
+						log("Sent Query.");
+						int count = results.getInt("rowcount");
+						log("Got count.");
+						this.getServer().broadcastMessage("There are currently " + count + " regions.");
+						log("Done getting region count");
+						return true;
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						log(e.toString());
+						this.getServer().broadcastMessage(e.toString());
+						return false;
+					}
 			}
-		}
-		return false;
+		return false; 
 		
 	}
 }
