@@ -15,6 +15,7 @@ import java.util.logging.Level;
 
 import com.avaje.ebean.Query;
 import com.mewin.WGRegionEvents.events.RegionEnterEvent;
+import com.mewin.WGRegionEvents.events.RegionLeaveEvent;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 
 import org.bukkit.command.Command;
@@ -31,6 +32,9 @@ import java.util.Calendar;
 public class Main extends JavaPlugin implements Listener  {
 	public Statement statement;
 	public ResultSet resultSet;
+	public int count;
+	public String Region;
+	public Player p;
 	ConfigManager cSQL = new ConfigManager();
 	
 	//on disable
@@ -53,25 +57,17 @@ public class Main extends JavaPlugin implements Listener  {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) throws Exception {
 		//add to players if not found
-		Connection con;
-		con = cSQL.conJoner();
 		String p = event.getPlayer().getName().toString();
 		String csql = ("SELECT COUNT(name) as rowcount FROM Players WHERE name ='" + p + "'");
-		statement = con.createStatement();
-		ResultSet results = statement.executeQuery(csql);
-		results.next();
+		ResultSet results = cSQL.executeQuery(csql);
 		int count = results.getInt("rowcount");
 		results.close();
 		log("Players Found: " + count);
 		if (count == 0) {
-			//Date
-	    	Calendar cal = Calendar.getInstance();
-	    	SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 			//construct
 			String usql = ("INSERT INTO Players VALUES (0,'" + p + "','none',0,Now())");
-			//create them
-			
-			statement.executeUpdate(usql);
+			//create them	
+			cSQL.writeQuery(usql);
 		}
 			
 	}
@@ -79,39 +75,47 @@ public class Main extends JavaPlugin implements Listener  {
 	@EventHandler
 	public void onRegionEnter(RegionEnterEvent e) throws SQLException
 	{
-		Player p = e.getPlayer();
+		String pname =  e.getPlayer().getName().toString();
+		Player pReg = e.getPlayer();
 		Double price = e.getRegion().getFlag(DefaultFlag.PRICE);
-		String Region = e.getRegion().getId();
-		Connection con;
-		
-		if (p.getTotalExperience() < price.floatValue()) 
+		Region = e.getRegion().getId();
+		//String lockSql = "UPDATE Regions SET "
+		//check if they can afford this location
+		if (pReg.getTotalExperience() < price.floatValue()) 
 		{
 		// Say no
-		e.getPlayer().sendMessage(ChatColor.RED + "You just tried to enter " + Region + " it takes " + price + "XP and you only have " + ((int)p.getExp()));
+		e.getPlayer().sendMessage(ChatColor.RED + "You just tried to enter " + Region + " it takes " + price + "XP and you only have " + ((int)pReg.getExp()));
 		// Kill it with fire
 		e.setCancelled(true);
 		// Set new location with smallest X as possible.
-		Location location = new Location(p.getWorld(),(p.getLocation().getX() - 20),p.getLocation().getY(),p.getLocation().getZ());
-		p.teleport(location); //do it
+		Location location = new Location(pReg.getWorld(),(pReg.getLocation().getX() - 20),pReg.getLocation().getY(),pReg.getLocation().getZ());
+		pReg.teleport(location); //do it
 		
 		
 		
 		}
 		else {
-			p.giveExp((int) -price);
+			Region = e.getRegion().getId();
+			pReg.giveExp((int) -price);
 			e.getPlayer().sendMessage(ChatColor.GREEN + "You just entered " + Region + " it cost you " + price);
 			
 			// Location logic goes here
 			//get region info
 			String regSql = ("SELECT * FROM Regions WHERE name ='" + Region + "'");
+			String updateSql = ("UPDATE Players SET area = '" + Region + "' WHERE name = '" + pname + "'");
+			log(regSql);
+			log(updateSql);
 			try {
-				con = cSQL.conJoner();
-				statement = con.createStatement();
-				ResultSet results = statement.executeQuery(regSql);
-				results.next();
+				cSQL.writeQuery(updateSql);
+				ResultSet results = cSQL.executeQuery(regSql);
+				
 				String regId = results.getString("id");
 				String regLock = results.getString("locked");
 				String regactions = results.getString("actions");
+				count = (results.getInt("count")  + 1);
+				String countSql = ("UPDATE Regions SET count = '" + count + "' WHERE name ='" + Region + "'");
+				cSQL.writeQuery(countSql);
+				log(regId + "/" + regLock + "/" + regactions + "/" + count); //debug
 				results.close();
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
@@ -137,6 +141,25 @@ public class Main extends JavaPlugin implements Listener  {
 		}
 	}
 	
+	@EventHandler
+	public void OnRegionExit(RegionLeaveEvent event) throws SQLException {
+		String pname = event.getPlayer().getName().toString();
+		
+		String countSql = ("SELECT * FROM Regions WHERE name ='" + Region + "'");
+		String updatePlayer = ("UPDATE Players SET area = 'none' WHERE name ='" + pname  + "'");
+		
+		ResultSet results = cSQL.executeQuery(countSql);
+		count = results.getInt("count");
+		String updateRegion = ("UPDATE Regions SET count ='" + (count - 1) + "' WHERE name = '" + Region + "'");
+		results.close();
+		
+		cSQL.writeQuery(updatePlayer); //Do player.
+		cSQL.writeQuery(updateRegion); //Do region.
+		log(updatePlayer);
+		log(updateRegion);
+		
+	}
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String label,
 			String[] args) {
 		if (cmd.getName().equalsIgnoreCase("wrc")) {
@@ -144,7 +167,7 @@ public class Main extends JavaPlugin implements Listener  {
 					ResultSet results;
 					try {
 						log("Trying to read results of region count.");
-						results = cSQL.read("SELECT COUNT(id) AS rowcount FROM Regions");
+						results = cSQL.executeQuery("SELECT COUNT(id) AS rowcount FROM Regions");
 						log("Sent Query.");
 						int count = results.getInt("rowcount");
 						log("Got count.");
