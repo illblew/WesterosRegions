@@ -37,9 +37,9 @@ public class ConfigManager {
     	}
     
     public void writeQuery(String query) throws SQLException{
-  	  Connection conn = null;;
+  	  Connection conn = null;
   	  PreparedStatement statement = null;
-  	  String url = "jdbc:mysql://88.198.107.46/WesterosRegions?user=WesterosRegions&password=hunter2";
+  	  String url = "jdbc:mysql://127.0.0.1/WesterosRegions?user=WesterosRegions&password=hunter2";
   	 
   	  	log("Writing Data...");
   	    //Attempt it

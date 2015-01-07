@@ -33,9 +33,12 @@ public class Main extends JavaPlugin implements Listener  {
 	public Statement statement;
 	public ResultSet resultSet;
 	public int count;
+	public int locked;
+	public int Switch = 0;
 	public String Region;
 	public Player p;
 	ConfigManager cSQL = new ConfigManager();
+	commander CMD = new commander();
 	
 	//on disable
 	public void onDisable() {
@@ -79,8 +82,7 @@ public class Main extends JavaPlugin implements Listener  {
 		Player pReg = e.getPlayer();
 		Double price = e.getRegion().getFlag(DefaultFlag.PRICE);
 		Region = e.getRegion().getId();
-		//String lockSql = "UPDATE Regions SET "
-		//check if they can afford this location
+		
 		if (pReg.getTotalExperience() < price.floatValue()) 
 		{
 		// Say no
@@ -96,27 +98,48 @@ public class Main extends JavaPlugin implements Listener  {
 		}
 		else {
 			Region = e.getRegion().getId();
-			pReg.giveExp((int) -price);
-			e.getPlayer().sendMessage(ChatColor.GREEN + "You just entered " + Region + " it cost you " + price);
-			
 			// Location logic goes here
 			//get region info
 			String regSql = ("SELECT * FROM Regions WHERE name ='" + Region + "'");
 			String updateSql = ("UPDATE Players SET area = '" + Region + "' WHERE name = '" + pname + "'");
-			log(regSql);
-			log(updateSql);
 			try {
-				cSQL.writeQuery(updateSql);
 				ResultSet results = cSQL.executeQuery(regSql);
-				
 				String regId = results.getString("id");
-				String regLock = results.getString("locked");
+				int regLock = results.getInt("locked");
 				String regactions = results.getString("actions");
-				count = (results.getInt("count")  + 1);
-				String countSql = ("UPDATE Regions SET count = '" + count + "' WHERE name ='" + Region + "'");
+				int regMax = results.getInt("max");
+				String regType = results.getString("type");
+				count = (results.getInt("count"));
+				if (count == regMax || regLock == 1) {
+					// kick if max is met or locked
+					// Say no
+					e.getPlayer().sendMessage(ChatColor.RED + "You just tried to enter " + Region + ". Sorry, it's already full or locked!");
+					// Kill it with fire
+					e.setCancelled(true);
+					// Set new location with smallest X as possible.
+					Location location = new Location(pReg.getWorld(),(pReg.getLocation().getX() - 20),pReg.getLocation().getY(),pReg.getLocation().getZ());
+					pReg.teleport(location); //do it
+					results.close();
+				}
+				else 
+				{
+					count = (count + 1);
+					String countSql = ("UPDATE Regions SET count = '" + count + "' WHERE name ='" + Region + "'");
+				if (regMax == count && regType.equals("instance")) {
+					log("Attempting to lock instance.");
+					String lockSql = ("UPDATE Regions SET locked = 1 WHERE name ='" + Region + "'");
+					CMD.sender("region flag " + Region + " -w " + pReg.getWorld().toString() + " exit deny");
+					this.getServer().broadcastMessage("Event at region " + Region + "will begin shortly. " + Region + " is now locked!");
+					cSQL.writeQuery(lockSql);
+					log("Locked instance! World: " + pReg.getWorld().getName());
+				}
+				log("Count: " + count + " Type: " + regType + " Max: " + regMax);
+				pReg.giveExp((int) -price);
+				e.getPlayer().sendMessage(ChatColor.GREEN + "You just entered " + Region + " it cost you " + price);
+				cSQL.writeQuery(updateSql);
 				cSQL.writeQuery(countSql);
-				log(regId + "/" + regLock + "/" + regactions + "/" + count); //debug
 				results.close();
+				}
 			} catch (Exception e1) {
 				// TODO Auto-generated catch block
 				log(e1.toString());
@@ -137,28 +160,29 @@ public class Main extends JavaPlugin implements Listener  {
 			
 			// Area cleanup
 			
-				// Call regen based on Prisim data? WHAT WHAT!
+				// Call regen based on Prisim ? WHAT WHAT!
 		}
 	}
 	
 	@EventHandler
-	public void OnRegionExit(RegionLeaveEvent event) throws SQLException {
+	public void OnRegionLeave(RegionLeaveEvent event) throws SQLException {
 		String pname = event.getPlayer().getName().toString();
-		
+		Player pReg = event.getPlayer();
+		//query
 		String countSql = ("SELECT * FROM Regions WHERE name ='" + Region + "'");
 		String updatePlayer = ("UPDATE Players SET area = 'none' WHERE name ='" + pname  + "'");
-		
+		//Region info
+		Double price = event.getRegion().getFlag(DefaultFlag.PRICE);
 		ResultSet results = cSQL.executeQuery(countSql);
 		count = results.getInt("count");
+		//User real current count
 		String updateRegion = ("UPDATE Regions SET count ='" + (count - 1) + "' WHERE name = '" + Region + "'");
 		results.close();
 		
+		//update
 		cSQL.writeQuery(updatePlayer); //Do player.
 		cSQL.writeQuery(updateRegion); //Do region.
-		log(updatePlayer);
-		log(updateRegion);
-		
-	}
+		}	
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label,
 			String[] args) {
