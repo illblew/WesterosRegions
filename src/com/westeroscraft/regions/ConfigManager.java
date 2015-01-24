@@ -18,7 +18,7 @@ public class ConfigManager {
     public ResultSet executeQuery(String query){
     	  Connection conn;
     	  ResultSet results;
-    	  String url = "jdbc:mysql://88.198.107.46/WesterosRegions?user=WesterosRegions&password=hunter2";
+    	  String url = "jdbc:mysql://localhost/WesterosRegions?user=WesterosRegions&password=hunter2";
     	 
     	  //Attempt to connect
     	  try{

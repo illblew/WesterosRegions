@@ -35,6 +35,7 @@ public class Main extends JavaPlugin implements Listener  {
 	public int count;
 	public int locked;
 	public int Switch = 0;
+	public String command;
 	public String Region;
 	public Player p;
 	ConfigManager cSQL = new ConfigManager();
@@ -149,18 +150,15 @@ public class Main extends JavaPlugin implements Listener  {
 				// Check minimum players for instance
 			
 					// Execute action to start event
+			CheckStatus(Region);
 			
+			Object time;
 			// Instance cleanup
-			
-		//OR
+			PrisimCleanup(Region);
 			
 			// Lock area
-			
-				// Call events for area even if X players in area
-			
-			// Area cleanup
-			
-				// Call regen based on Prisim ? WHAT WHAT!
+			CheckState(Region, locked);
+	
 		}
 	}
 	
@@ -183,6 +181,24 @@ public class Main extends JavaPlugin implements Listener  {
 		cSQL.writeQuery(updatePlayer); //Do player.
 		cSQL.writeQuery(updateRegion); //Do region.
 		}	
+	public void CheckStatus(String region) {
+		//Do preflight checks
+		
+		
+		//get command
+		
+		//call to action
+		CMD.sender(command);
+	}
+	
+	public void PrisimCleanup(String region) {
+		
+		
+	}
+	
+	public void CheckState(String region, int lock) {
+		
+	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label,
 			String[] args) {
