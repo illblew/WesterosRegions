@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/WGRegionEvents.jar"/>
-	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/worldguard.jar"/>
-	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/worldedit-5.5.8-Westeroscraft-0.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/bukkit-1.6.4-R2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pepsi/Desktop/twitch/worldedit-bukkit-6.0.2-SNAPSHOT-dist.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/craftbukkit-1.7.10-R0.1-20140808.005431-8.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pepsi/Downloads/worldguard-6.0.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pepsi/Desktop/WesterosRegions/WGRegionEvents.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

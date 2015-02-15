@@ -18,7 +18,7 @@ public class ConfigManager {
     public ResultSet executeQuery(String query){
     	  Connection conn;
     	  ResultSet results;
-    	  String url = "jdbc:mysql://localhost/WesterosRegions?user=WesterosRegions&password=hunter2";
+    	  String url = "jdbc:mysql://127.0.0.1/WesterosRegions?user=WesterosRegions&password=hunter2";
     	 
     	  //Attempt to connect
     	  try{
@@ -39,15 +39,19 @@ public class ConfigManager {
     public void writeQuery(String query) throws SQLException{
   	  Connection conn = null;
   	  PreparedStatement statement = null;
-  	  String url = "jdbc:mysql://127.0.0.1/WesterosRegions?user=WesterosRegions&password=hunter2";
+  	  String url = "jdbc:mysql://88.198.107.46/WesterosRegions?user=WesterosRegions&password=hunter2";
   	 
   	  	log("Writing Data...");
   	    //Attempt it
+  	  	try {
   	    conn = DriverManager.getConnection(url);
   	    statement = conn.prepareStatement(query);
   	    statement.executeUpdate();
   	    statement.close();
   	    conn.close();
+  	  	} catch(Exception e) {
+  	  		log(e.toString());
+  	  	}
   	    log("Wrote the data and closed the commection!");
 
   	}
