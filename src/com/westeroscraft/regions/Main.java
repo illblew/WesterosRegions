@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 
-import com.illblew.WGRegionEvents.events.RegionEnterEvent;
-import com.illblew.WGRegionEvents.events.RegionLeaveEvent;
+import com.mewin.WGRegionEvents.events.RegionEnterEvent;
+import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 
@@ -104,7 +104,7 @@ public class Main extends JavaPlugin implements Listener  {
 	}
 	
 	@EventHandler
-	public void OnRegionLeave(RegionLeaveEvent event) throws SQLException {
+	public void OnRegionLeave(RegionEnterEvent event) throws SQLException {
 		String pname = event.getPlayer().getName().toString();
 		Player pReg = event.getPlayer();
 		Region = event.getRegion().getId();
